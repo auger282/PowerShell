@@ -17,8 +17,9 @@
 .NOTES
    Author : Auger282
    GitHub : https://github.com/auger282/
-   Version: .5
-   Date   : 01/13/17
+   Version: .6
+   Date   : 4/7/17
+   Changes: Added Office 365 Security & Compliance Center
 #>
 
 #############################################################################
@@ -70,6 +71,7 @@ do{
     Write-Host "     4 = Exchange Online"
     Write-Host "     5 = Skype for Business"
     Write-Host "     6 = SharePoint Online"
+    Write-Host "     7 = Office 365 Security & Compliance Center"
     Write-Host
     Write-Host "     9 = Disconnect All Sessions"
     Write-Host "     q = Exit Program"
@@ -157,6 +159,30 @@ do{
             Connect-SPOService -url $spoServiceURL -Credential $onlineAdmin
         }
     }
+    elseif($menuSelect -eq 7){
+        # Check to make sure SPOService URL is configured before continuing to connect
+        If(!$spoServiceURL){
+            cls
+            Write-Host
+            Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            Write-Host "!!! `$spoServiceURL is not set                   !!!"
+            Write-Host "!!! Please update script                        !!!"
+            Write-Host "!!! Before using this option                    !!!"
+            Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            Write-Host
+            pause
+        }
+        else{
+            if(!$onlineAdmin){$onlineAdmin = Get-Credential -message "Please supply password for Online Admin" -username $onlineAdminUsername}
+            cls
+            Write-Host
+            Write-Host "Connecting to Office 365 Security & Compliance Center..."
+            Write-Host
+            $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://ps.compliance.protection.outlook.com/powershell-liveid -Credential $onlineAdmin -Authentication Basic -AllowRedirection 
+            Import-PSSession $Session -AllowClobber -DisableNameChecking 
+            $Host.UI.RawUI.WindowTitle = $UserCredential.UserName + " (Office 365 Security & Compliance Center)" 
+        }
+    }
     elseif($menuSelect -eq 9){
         cls
         Write-Host
@@ -171,7 +197,7 @@ do{
     elseif($menuSelect -eq "q"){Exit}
 
     # Error message if you made an invalid choice
-    If("1","2","3","4","5","6","9","!" -notcontains $menuSelect) {
+    If("1","2","3","4","5","6","7","9","!" -notcontains $menuSelect) {
         Write-Host
         Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         Write-Host "!!! You have not entered in a valid menu choice !!!"
@@ -198,4 +224,4 @@ do{
     }
 }
 # While you have an invalid selection continue looping
-while("1","2","3","4","5","6","9","q" -notcontains $menuSelect)
+while("1","2","3","4","5","6","7","q" -notcontains $menuSelect)
